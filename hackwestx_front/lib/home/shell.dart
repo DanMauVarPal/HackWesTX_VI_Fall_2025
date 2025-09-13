@@ -66,7 +66,7 @@ class _ShellState extends State<Shell> {
   Widget _buildContent() {
     switch (current) {
       case AppSection.dashboard:
-        return const Dashboard(); // all your main page goes here
+        return const Dashboard();
       case AppSection.stockAnalysis:
         return const PlaceholderView('Stock Analysis');
       case AppSection.newsFeed:

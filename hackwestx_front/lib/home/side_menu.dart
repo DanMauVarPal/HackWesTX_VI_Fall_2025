@@ -108,30 +108,6 @@ class SideMenu extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 14),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Text('AI FEATURES', style: headingStyle),
-                  ),
-                  const SizedBox(height: 8),
-                  MenuGroup(
-                    children: [
-                      NavItem(
-                        icon: Icons.lightbulb_outline,
-                        label: 'Value Investing',
-                        caption: 'Graham & Buffett Logic',
-                        selected: current == AppSection.valueInvesting,
-                        onTap: () => onChange(AppSection.valueInvesting),
-                      ),
-                      NavItem(
-                        icon: Icons.bolt_outlined,
-                        label: 'Real-time Analysis',
-                        caption: 'Live Market Data',
-                        selected: current == AppSection.realTimeAnalysis,
-                        onTap: () => onChange(AppSection.realTimeAnalysis),
-                      ),
-                    ],
-                  ),
                 ],
               ),
             ),
