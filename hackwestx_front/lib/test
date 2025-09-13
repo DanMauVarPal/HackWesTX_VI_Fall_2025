@@ -1,0 +1,347 @@
+enum AppSection {
+  dashboard,
+  stockAnalysis,
+  newsFeed,
+  books,
+  valueInvesting,
+  realTimeAnalysis,
+}
+
+class _Shell extends StatefulWidget {
+  const _Shell();
+
+  @override
+  State<_Shell> createState() => _ShellState();
+}
+
+class _ShellState extends State<_Shell> {
+  AppSection current = AppSection.dashboard;
+
+  @override
+  Widget build(BuildContext context) {
+    // Responsive: sidebar on wide screens, Drawer on narrow.
+    return LayoutBuilder(
+      builder: (context, c) {
+        final isWide = c.maxWidth >= 980;
+
+        if (isWide) {
+          return Scaffold(
+            body: SafeArea(
+              child: Row(
+                children: [
+                  _SideMenu(
+                    current: current,
+                    onChange: (s) => setState(() => current = s),
+                  ),
+                  // Content
+                  Expanded(child: _buildContent()),
+                ],
+              ),
+            ),
+          );
+        } else {
+          // Mobile: slide-out drawer keeps the same menu
+          return Scaffold(
+            drawer: Drawer(
+              backgroundColor: const Color(0xFF0E152A),
+              child: SafeArea(
+                child: _SideMenu(
+                  current: current,
+                  onChange: (s) {
+                    setState(() => current = s);
+                    Navigator.of(context).pop(); // close drawer
+                  },
+                  compact: true,
+                ),
+              ),
+            ),
+            appBar: AppBar(
+              title: const Text('ValuePicker AI'),
+              backgroundColor: const Color(0xFF0B1220),
+            ),
+            body: _buildContent(),
+          );
+        }
+      },
+    );
+  }
+
+  Widget _buildContent() {
+    switch (current) {
+      case AppSection.dashboard:
+        return const HomePage(); // all your main page goes here
+      case AppSection.stockAnalysis:
+        return const _PlaceholderView('Stock Analysis');
+      case AppSection.newsFeed:
+        return const _PlaceholderView('News Feed');
+      case AppSection.books:
+        return const _PlaceholderView('Books');
+      case AppSection.valueInvesting:
+        return const _PlaceholderView('Value Investing (Graham & Buffett)');
+      case AppSection.realTimeAnalysis:
+        return const _PlaceholderView('Real-time Analysis (Live Market Data)');
+    }
+  }
+}
+
+class _PlaceholderView extends StatelessWidget {
+  const _PlaceholderView(this.title);
+  final String title;
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Text(title, style: Theme.of(context).textTheme.headlineMedium),
+    );
+    // Replace with your real screens as you build them.
+  }
+}
+
+/// Left sidebar
+class _SideMenu extends StatelessWidget {
+  const _SideMenu({
+    required this.current,
+    required this.onChange,
+    this.compact = false,
+  });
+
+  final AppSection current;
+  final ValueChanged<AppSection> onChange;
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) {
+    final bg = const Color(0xFF0E152A); // sidebar bg
+    final border = Colors.white.withOpacity(.06);
+    final headingStyle = Theme.of(context).textTheme.labelSmall!.copyWith(
+          color: Colors.white.withOpacity(.55),
+          letterSpacing: 1.1,
+        );
+
+    return Container(
+      width: compact ? 300 : 280,
+      height: double.infinity,
+      decoration: BoxDecoration(
+        color: bg,
+        border: Border(right: BorderSide(color: border)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Logo / brand
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            child: Row(
+              children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      colors: [Color(0xFF60A5FA), Color(0xFF22D3EE)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                const Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('ValuePicker AI',
+                          style: TextStyle(
+                              fontWeight: FontWeight.w700, fontSize: 16)),
+                      SizedBox(height: 2),
+                      Text('Intelligent Stock Analysis',
+                          style: TextStyle(
+                              fontSize: 11, color: Colors.white70)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 10),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _MenuGroup(
+                    children: [
+                      _NavItem(
+                        icon: Icons.dashboard_outlined,
+                        label: 'Dashboard',
+                        selected: current == AppSection.dashboard,
+                        onTap: () => onChange(AppSection.dashboard),
+                      ),
+                      _NavItem(
+                        icon: Icons.show_chart,
+                        label: 'Stock Analysis',
+                        selected: current == AppSection.stockAnalysis,
+                        onTap: () => onChange(AppSection.stockAnalysis),
+                      ),
+                      _NavItem(
+                        icon: Icons.article_outlined,
+                        label: 'News Feed',
+                        selected: current == AppSection.newsFeed,
+                        onTap: () => onChange(AppSection.newsFeed),
+                      ),
+                      _NavItem(
+                        icon: Icons.menu_book_outlined,
+                        label: 'Books',
+                        selected: current == AppSection.books,
+                        onTap: () => onChange(AppSection.books),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Text('AI FEATURES', style: headingStyle),
+                  ),
+                  const SizedBox(height: 8),
+                  _MenuGroup(
+                    children: [
+                      _NavItem(
+                        icon: Icons.lightbulb_outline,
+                        label: 'Value Investing',
+                        caption: 'Graham & Buffett Logic',
+                        selected: current == AppSection.valueInvesting,
+                        onTap: () => onChange(AppSection.valueInvesting),
+                      ),
+                      _NavItem(
+                        icon: Icons.bolt_outlined,
+                        label: 'Real-time Analysis',
+                        caption: 'Live Market Data',
+                        selected: current == AppSection.realTimeAnalysis,
+                        onTap: () => onChange(AppSection.realTimeAnalysis),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+          // Bottom status card
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(14),
+                color: Colors.white.withOpacity(.04),
+                border: Border.all(color: border),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.auto_awesome, size: 18, color: Colors.white70),
+                  const SizedBox(width: 8),
+                  const Text('AI Assistant',
+                      style:
+                          TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                  const Spacer(),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF22D3EE).withOpacity(.15),
+                      borderRadius: BorderRadius.circular(999),
+                      border: Border.all(
+                          color: const Color(0xFF22D3EE).withOpacity(.6)),
+                    ),
+                    child: const Text(
+                      'Analyzing 24/7',
+                      style: TextStyle(fontSize: 11, color: Color(0xFF67E8F9)),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MenuGroup extends StatelessWidget {
+  const _MenuGroup({required this.children});
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(children: children);
+  }
+}
+
+class _NavItem extends StatelessWidget {
+  const _NavItem({
+    required this.icon,
+    required this.label,
+    required this.selected,
+    required this.onTap,
+    this.caption,
+  });
+
+  final IconData icon;
+  final String label;
+  final String? caption;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final base = Colors.white.withOpacity(.78);
+    final sub = Colors.white.withOpacity(.55);
+    final selBg = const Color(0xFF1B2440);
+    final border = Colors.white.withOpacity(.06);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: onTap,
+        child: Container(
+          decoration: BoxDecoration(
+            color: selected ? selBg : Colors.transparent,
+            borderRadius: BorderRadius.circular(12),
+            border: selected ? Border.all(color: border) : null,
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          child: Row(
+            children: [
+              Icon(icon, size: 20, color: selected ? Colors.white : base),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(label,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontWeight:
+                              selected ? FontWeight.w700 : FontWeight.w500,
+                          color: selected ? Colors.white : base,
+                          fontSize: 14,
+                        )),
+                    if (caption != null) ...[
+                      const SizedBox(height: 2),
+                      Text(caption!,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(fontSize: 11, color: sub)),
+                    ],
+                  ],
+                ),
+              ),
+              if (selected)
+                const Icon(Icons.chevron_right, color: Colors.white70, size: 18),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
