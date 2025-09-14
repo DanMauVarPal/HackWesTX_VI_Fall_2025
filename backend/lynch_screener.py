@@ -1,4 +1,3 @@
-# lynch_screener.py
 import json
 import pandas as pd, numpy as np, yfinance as yf
 from common_screener import (
@@ -6,13 +5,13 @@ from common_screener import (
     ffloat, is_num, frac_to_pct
 )
 
-# Gates (growth at a reasonable price)
+# Gates (growth at a reasonable price in essence)
 PEG_MAX = 1.0
 PE_MAX = 25.0
 DEBT_TO_EQUITY_MAX = 0.5
 MARKET_CAP_MIN = 500e6
 
-# CoreScore
+# CoreScore weights based on one up on wallstreet
 CORE_WEIGHTS = {"P/E":0.25, "PEG":0.25, "ROE%":0.20, "DebtToEquity":0.15, "MarketCap":0.15}
 DIRS = {"P/E":False, "PEG":False, "ROE%":True, "DebtToEquity":False, "MarketCap":True}
 
