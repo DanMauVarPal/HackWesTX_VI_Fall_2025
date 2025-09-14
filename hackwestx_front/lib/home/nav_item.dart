@@ -2,25 +2,23 @@ import 'package:flutter/material.dart';
 
 class NavItem extends StatelessWidget {
   const NavItem({
+    super.key,
     required this.icon,
     required this.label,
     required this.selected,
     required this.onTap,
-    this.caption,
   });
 
   final IconData icon;
   final String label;
-  final String? caption;
   final bool selected;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final base = Colors.white.withOpacity(.78);
-    final sub = Colors.white.withOpacity(.55);
+    final base = Colors.white.withValues(alpha: .78);
     final selBg = const Color(0xFF1B2440);
-    final border = Colors.white.withOpacity(.06);
+    final border = Colors.white.withValues(alpha: .06);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
@@ -53,14 +51,6 @@ class NavItem extends StatelessWidget {
                         fontSize: 14,
                       ),
                     ),
-                    if (caption != null) ...[
-                      const SizedBox(height: 2),
-                      Text(
-                        caption!,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(fontSize: 11, color: sub),
-                      ),
-                    ],
                   ],
                 ),
               ),

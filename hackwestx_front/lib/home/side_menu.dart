@@ -5,6 +5,7 @@ import 'package:hackwestx_front/main.dart';
 
 class SideMenu extends StatelessWidget {
   const SideMenu({
+    super.key,
     required this.current,
     required this.onChange,
     this.compact = false,
@@ -18,10 +19,6 @@ class SideMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     final bg = const Color(0xFF0E152A); // sidebar bg
     final border = Colors.white.withValues(alpha: .06);
-    final headingStyle = Theme.of(context).textTheme.labelSmall!.copyWith(
-      color: Colors.white.withOpacity(.55),
-      letterSpacing: 1.1,
-    );
 
     return Container(
       width: compact ? 300 : 280,
@@ -33,7 +30,6 @@ class SideMenu extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Logo / brand
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
             child: Row(
@@ -112,14 +108,14 @@ class SideMenu extends StatelessWidget {
               ),
             ),
           ),
-          // Bottom status card
+
           Padding(
             padding: const EdgeInsets.all(12.0),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(14),
-                color: Colors.white.withOpacity(.04),
+                color: Colors.white.withValues(alpha: .04),
                 border: Border.all(color: border),
               ),
               child: Row(
@@ -141,10 +137,10 @@ class SideMenu extends StatelessWidget {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF22D3EE).withOpacity(.15),
+                      color: const Color(0xFF22D3EE).withValues(alpha: .15),
                       borderRadius: BorderRadius.circular(999),
                       border: Border.all(
-                        color: const Color(0xFF22D3EE).withOpacity(.6),
+                        color: const Color(0xFF22D3EE).withValues(alpha: .6),
                       ),
                     ),
                     child: const Text(
