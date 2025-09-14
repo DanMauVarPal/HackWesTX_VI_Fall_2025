@@ -1,0 +1,9 @@
+Ticker,Name,Sector,CoreScore,ChecklistScore,GrahamGate,MarketCap,P/E,P/B,PE_x_PB,CurrentRatio,DebtToEquity,ROE%,OperatingMargin%,GrossMargin%,DividendYield%,EPS_ttm
+AAPL,AAPL,,0.0,0,False,,,,,,,,,,,
+MSFT,MSFT,,0.0,0,False,,,,,,,,,,,
+JNJ,JNJ,,0.0,0,False,,,,,,,,,,,
+XOM,XOM,,0.0,0,False,,,,,,,,,,,
+KO,KO,,0.0,0,False,,,,,,,,,,,
+INTC,INTC,,0.0,0,False,,,,,,,,,,,
+WMT,WMT,,0.0,0,False,,,,,,,,,,,
+PG,PG,,0.0,0,False,,,,,,,,,,,

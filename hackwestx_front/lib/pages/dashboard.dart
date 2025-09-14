@@ -58,34 +58,20 @@ class Dashboard extends StatelessWidget {
             crossAxisSpacing: 10,
             mainAxisSpacing: 10,
             children: [
+              // Replace the first few placeholder buttons with these:
               FilledButton.icon(
-                label: const Text("Test Button 0"),
-                onPressed: () => fetchAndShow(context, "test"),
+                label: const Text("Templeton"),
+                onPressed: () => fetchAndShow(context, "templeton"),
               ),
               FilledButton.icon(
-                onPressed: () {},
-                label: const Text("Test Button 1"),
+                label: const Text("Klarman"),
+                onPressed: () => fetchAndShow(context, "klarman"),
               ),
               FilledButton.icon(
-                onPressed: () {},
-                label: const Text("Test Button 2"),
+                label: const Text("Graham"),
+                onPressed: () => fetchAndShow(context, "graham"),
               ),
-              FilledButton.icon(
-                onPressed: () {},
-                label: const Text("Test Button 3"),
-              ),
-              FilledButton.icon(
-                onPressed: () {},
-                label: const Text("Test Button 4"),
-              ),
-              FilledButton.icon(
-                onPressed: () {},
-                label: const Text("Test Button 5"),
-              ),
-              FilledButton.icon(
-                onPressed: () {},
-                label: const Text("Test Button 6"),
-              ),
+
             ],
           ),
         ],
@@ -95,7 +81,7 @@ class Dashboard extends StatelessWidget {
 }
 
 Future<void> fetchAndShow(BuildContext context, String func) async {
-  final url = Uri.parse("http://10.0.2.2:8000/$func");
+  final url = Uri.parse("http://10.161.3.108:8000/$func");
   final response = await http.get(url);
 
   if (response.statusCode == 200) {
