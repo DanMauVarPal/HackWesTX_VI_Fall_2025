@@ -23,11 +23,11 @@ class PriceColumn extends StatelessWidget {
         Text(
           '\$${price.toStringAsFixed(2)}',
           style: (highlight
-              ? text.titleLarge!.copyWith(
+              ? text.titleMedium!.copyWith(
                   color: const Color(0xFF34D399),
                   fontWeight: FontWeight.w800,
                 )
-              : text.titleLarge!.copyWith(fontWeight: FontWeight.w800)),
+              : text.titleMedium!.copyWith(fontWeight: FontWeight.w800)),
         ),
       ],
     );

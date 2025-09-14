@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:hackwestx_front/pages/panel.dart';
 import 'package:hackwestx_front/pages/recommendation_card.dart';
+import 'package:hackwestx_front/pages/widgets/icon_button.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
@@ -17,7 +17,7 @@ class _DashboardState extends State<Dashboard> {
   String lastUpdated = DateFormat('MM/dd/y – HH:mm:ss').format(DateTime.now());
 
   Future<void> _runAIAnalysis() async {
-    await fetchAndShow(context, "analyze"); // your API call
+    await fetchAndShow(context, "analyze");
     if (!mounted) return;
     setState(() {
       lastUpdated = DateFormat('yyyy-MM-dd – HH:mm:ss').format(DateTime.now());
@@ -47,18 +47,65 @@ class _DashboardState extends State<Dashboard> {
               ),
               const Spacer(),
               FilledButton.icon(
-                onPressed: _runAIAnalysis, // ✅ updates when clicked
+                onPressed: _runAIAnalysis,
                 icon: const Icon(Icons.bolt),
                 label: const Text('Run AI Analysis'),
               ),
             ],
           ),
           const SizedBox(height: 18),
-          Panel(
-            child: Text(
-              'Place your “Strong Buy Signals / Total Positions / Potential Upside” cards here.',
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              SizedBox(
+                width: 110,
+                child: InvButton(
+                  asset: 'assets/icons/buy.png',
+                  label: 'Warren Buffett',
+                  onTap: _noop,
+                ),
+              ),
+              SizedBox(
+                width: 110,
+                child: InvButton(
+                  asset: 'assets/icons/sell.png',
+                  label: 'Benjamin Graham',
+                  onTap: _noop,
+                ),
+              ),
+              SizedBox(
+                width: 110,
+                child: InvButton(
+                  asset: 'assets/icons/hold.png',
+                  label: 'Seth Klarman',
+                  onTap: _noop,
+                ),
+              ),
+              SizedBox(
+                width: 110,
+                child: InvButton(
+                  asset: 'assets/icons/news.png',
+                  label: 'John Templeton',
+                  onTap: _noop,
+                ),
+              ),
+              SizedBox(
+                width: 110,
+                child: InvButton(
+                  asset: 'assets/icons/metrics.png',
+                  label: 'Peter Lynch',
+                  onTap: _noop,
+                ),
+              ),
+              SizedBox(
+                width: 110,
+                child: InvButton(
+                  asset: 'assets/icons/wallet.png',
+                  label: 'Jorge Soros',
+                  onTap: _noop,
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 16),
           Row(
@@ -76,11 +123,12 @@ class _DashboardState extends State<Dashboard> {
               ),
             ],
           ),
+
           const SizedBox(height: 16),
+
           GridView.count(
-            crossAxisCount: 7,
+            crossAxisCount: 2,
             shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
             crossAxisSpacing: 10,
             mainAxisSpacing: 10,
             children: [
@@ -88,7 +136,7 @@ class _DashboardState extends State<Dashboard> {
                 investor: 'Buffett',
                 ticker: 'XOM',
                 name: 'Exxon Mobil Corporation',
-                sector: 'Energy',
+                sector: 'Buffet',
                 coreScore: 62.9,
                 marketCap: 478166122496.0,
                 summary: '',
@@ -103,10 +151,10 @@ class _DashboardState extends State<Dashboard> {
                 drawdownFromHigh: 11.223682127592216,
               ),
               RecommendationCard(
-                investor: 'Graham',
+                investor: 'Buffet',
                 ticker: 'XOM',
                 name: 'Exxon Mobil Corporation',
-                sector: 'Energy',
+                sector: 'Graham',
                 coreScore: 62.9,
                 marketCap: 478166122496.0,
                 summary: '',
@@ -121,10 +169,10 @@ class _DashboardState extends State<Dashboard> {
                 drawdownFromHigh: 11.223682127592216,
               ),
               RecommendationCard(
-                investor: 'Templeton',
+                investor: 'Buffet',
                 ticker: 'XOM',
                 name: 'Exxon Mobil Corporation',
-                sector: 'Energy',
+                sector: 'Templeton',
                 coreScore: 62.9,
                 marketCap: 478166122496.0,
                 summary: '',
@@ -139,10 +187,10 @@ class _DashboardState extends State<Dashboard> {
                 drawdownFromHigh: 11.223682127592216,
               ),
               RecommendationCard(
-                investor: 'Klarman',
+                investor: 'Buffet',
                 ticker: 'XOM',
                 name: 'Exxon Mobil Corporation',
-                sector: 'Energy',
+                sector: 'Klarman',
                 coreScore: 62.9,
                 marketCap: 478166122496.0,
                 summary: '',
@@ -157,10 +205,10 @@ class _DashboardState extends State<Dashboard> {
                 drawdownFromHigh: 11.223682127592216,
               ),
               RecommendationCard(
-                investor: 'Lynch',
+                investor: 'Buffet',
                 ticker: 'XOM',
                 name: 'Exxon Mobil Corporation',
-                sector: 'Energy',
+                sector: 'Lynch',
                 coreScore: 62.9,
                 marketCap: 478166122496.0,
                 summary: '',
@@ -175,10 +223,10 @@ class _DashboardState extends State<Dashboard> {
                 drawdownFromHigh: 11.223682127592216,
               ),
               RecommendationCard(
-                investor: 'Soros',
+                investor: 'Buffet',
                 ticker: 'XOM',
                 name: 'Exxon Mobil Corporation',
-                sector: 'Energy',
+                sector: 'Soros',
                 coreScore: 62.9,
                 marketCap: 478166122496.0,
                 summary: '',

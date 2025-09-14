@@ -55,6 +55,68 @@ class RecommendationCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
 
+    final tiles = <Widget>[
+      if (pe != null && !(investor == 'Klarman' || investor == 'Soros'))
+        Metrics(title: 'P/E Ratio', value: pe!.toStringAsFixed(2)),
+
+      if (pb != null &&
+          !(investor == 'Buffett' ||
+              investor == 'Lynch' ||
+              investor == 'Soros'))
+        Metrics(title: 'P/B Ratio', value: pb!.toStringAsFixed(2)),
+
+      if (priceTo52wLow != null &&
+          !(investor == 'Buffett' ||
+              investor == 'Klarman' ||
+              investor == 'Lynch' ||
+              investor == 'Soros'))
+        Metrics(
+          title: 'Price to 52w Low',
+          value: priceTo52wLow!.toStringAsFixed(2),
+        ),
+
+      if (dividendYield != null &&
+          !(investor == 'Klarman' ||
+              investor == 'Lynch' ||
+              investor == 'Soros'))
+        Metrics(
+          title: 'Dividend Yield %',
+          value: dividendYield!.toStringAsFixed(2),
+        ),
+
+      if (roe != null && !(investor == 'Klarman' || investor == 'Soros'))
+        Metrics(title: 'ROE%', value: roe!.toStringAsFixed(2)),
+
+      if (debtToEquity != null &&
+          !(investor == 'Klarman' || investor == 'Soros'))
+        Metrics(
+          title: 'Debt to Equity',
+          value: debtToEquity!.toStringAsFixed(2),
+        ),
+
+      if (currentRatio != null &&
+          !(investor == 'Buffett' ||
+              investor == 'Templeton' ||
+              investor == 'Lynch' ||
+              investor == 'Soros'))
+        Metrics(
+          title: 'Current Ratio',
+          value: currentRatio!.toStringAsFixed(2),
+        ),
+
+      if (investor == 'Templeton' && earningsGrowth != null)
+        Metrics(
+          title: 'Earnings Growth',
+          value: earningsGrowth!.toStringAsFixed(2),
+        ),
+
+      if (investor == 'Soros' && drawdownFromHigh != null)
+        Metrics(
+          title: 'Drawdown From High',
+          value: drawdownFromHigh!.toStringAsFixed(2),
+        ),
+    ];
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -62,150 +124,90 @@ class RecommendationCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: _border),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: TitleBlock(ticker: ticker, name: name, sector: sector),
-              ),
-              Wrap(
-                crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: 10,
-                children: [
-                  Pill(text: "Buy", color: _accent),
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.shield_outlined,
-                        size: 16,
-                        color: Colors.white70,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        '${(coreScore).toStringAsFixed(2)}% match',
-                        style: text.bodySmall!.copyWith(color: _muted),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 14),
-
-          Row(
-            children: [
-              PriceColumn(label: 'Price', price: marketCap, highlight: false),
-              const SizedBox(width: 24),
-              PriceColumn(
-                label: 'Market Cap',
-                price: marketCap,
-                highlight: true,
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 14),
-
-          GridView.count(
-            crossAxisCount: 2,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-            children: [
-              if (investor != "Klarman" || investor != "Soros")
+      child: LayoutBuilder(
+        builder: (context, cons) => Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
                 Expanded(
-                  child: Metrics(
-                    title: 'P/E Ratio',
-                    value: pe!.toStringAsFixed(2),
-                  ),
+                  child: TitleBlock(ticker: ticker, name: name, sector: sector),
                 ),
-              if (investor != "Buffett" ||
-                  investor != "Lynch" ||
-                  investor != "Soros")
-                Expanded(
-                  child: Metrics(
-                    title: 'P/B Ratio',
-                    value: pb!.toStringAsFixed(2),
-                  ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  spacing: 10,
+                  children: [
+                    Pill(text: "Buy", color: _accent),
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.shield_outlined,
+                          size: 16,
+                          color: Colors.white70,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          '${coreScore.toStringAsFixed(2)}% match',
+                          style: text.bodySmall!.copyWith(color: _muted),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-              if (investor != "Buffett" ||
-                  investor != "Klarman" ||
-                  investor != "Lynch" ||
-                  investor != "Soros")
-                Expanded(
-                  child: Metrics(
-                    title: 'Price to 52w Low',
-                    value: priceTo52wLow!.toStringAsFixed(2),
-                  ),
-                ),
-              if (investor != "Klarman" ||
-                  investor != "Lynch" ||
-                  investor != "Soros")
-                Expanded(
-                  child: Metrics(
-                    title: 'Dividend Yield %',
-                    value: dividendYield!.toStringAsFixed(2),
-                  ),
-                ),
-              if (investor != "Klarman" || investor != "Soros")
-                Expanded(
-                  child: Metrics(title: 'ROE%', value: roe!.toStringAsFixed(2)),
-                ),
-              if (investor != "Klarman" || investor != "Soros")
-                Expanded(
-                  child: Metrics(
-                    title: 'Debt to Equity',
-                    value: debtToEquity!.toStringAsFixed(2),
-                  ),
-                ),
-              if (investor != "Buffett" ||
-                  investor != "Templeton" ||
-                  investor != "Lynch" ||
-                  investor != "Soros")
-                Expanded(
-                  child: Metrics(
-                    title: 'Current Ratio',
-                    value: currentRatio!.toStringAsFixed(2),
-                  ),
-                ),
-              if (investor == "Templeton")
-                Expanded(
-                  child: Metrics(
-                    title: 'Earnings Growth',
-                    value: earningsGrowth!.toStringAsFixed(2),
-                  ),
-                ),
-              if (investor == "Soros")
-                Expanded(
-                  child: Metrics(
-                    title: 'Drawdown From High',
-                    value: drawdownFromHigh!.toStringAsFixed(2),
-                  ),
-                ),
-            ],
-          ),
-
-          const SizedBox(height: 16),
-          Divider(color: Colors.white.withValues(alpha: .08), height: 1),
-          const SizedBox(height: 12),
-
-          Text(
-            summary,
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-            style: text.bodyMedium!.copyWith(
-              color: Colors.white.withValues(alpha: .9),
-              height: 1.35,
+              ],
             ),
-          ),
-        ],
+
+            const SizedBox(height: 14),
+
+            Column(
+              children: [
+                PriceColumn(label: 'Price', price: marketCap, highlight: false),
+                const SizedBox(height: 10),
+                PriceColumn(
+                  label: 'Market Cap',
+                  price: marketCap,
+                  highlight: true,
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 14),
+
+            _metricsWrap(cons, tiles),
+
+            const SizedBox(height: 16),
+            Divider(color: Colors.white.withValues(alpha: .08), height: 1),
+            const SizedBox(height: 12),
+
+            Text(
+              summary,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+              style: text.bodyMedium!.copyWith(
+                color: Colors.white.withValues(alpha: .9),
+                height: 1.35,
+              ),
+            ),
+          ],
+        ),
       ),
     );
+  }
+
+  Widget _metricsWrap(BoxConstraints cons, List<Widget> metricTiles) {
+    if (metricTiles.isEmpty) return const SizedBox.shrink();
+
+    const gap = 12.0;
+    final full = cons.maxWidth;
+    final half = (full - gap) / 2;
+
+    List<Widget> sized = [];
+    for (final tile in metricTiles) {
+      final needsFull = full < 560;
+      sized.add(SizedBox(width: needsFull ? full : half, child: tile));
+    }
+
+    return Wrap(spacing: gap, runSpacing: gap, children: sized);
   }
 }
