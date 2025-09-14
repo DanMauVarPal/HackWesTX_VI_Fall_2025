@@ -167,7 +167,7 @@ class _DashboardState extends State<Dashboard> {
               SizedBox(
                 width: 110,
                 child: InvButton(
-                  asset: '../images/graham.png',
+                  asset: 'assets/images/graham.png',
                   label: 'Benjamin Graham',
                   selected: _strategy == 'graham',
                   disabled: _loading,
@@ -179,7 +179,7 @@ class _DashboardState extends State<Dashboard> {
               SizedBox(
                 width: 110,
                 child: InvButton(
-                  asset: '../images/klarman.png',
+                  asset: 'assets/images/klarman.png',
                   label: 'Seth Klarman',
                   selected: _strategy == 'klarman',
                   disabled: _loading,
@@ -189,7 +189,7 @@ class _DashboardState extends State<Dashboard> {
               SizedBox(
                 width: 110,
                 child: InvButton(
-                  asset: '../images/templeton.png',
+                  asset: 'assets/images/templeton.png',
                   label: 'John Templeton',
                   selected: _strategy == 'templeton',
                   disabled: _loading,
@@ -199,7 +199,7 @@ class _DashboardState extends State<Dashboard> {
               SizedBox(
                 width: 110,
                 child: InvButton(
-                  asset: '../images/buffett.png',
+                  asset: 'assets/images/buffett.png',
                   label: 'Warren Buffett',
                   selected: _strategy == 'buffett',
                   disabled: _loading,
@@ -209,7 +209,7 @@ class _DashboardState extends State<Dashboard> {
               SizedBox(
                 width: 110,
                 child: InvButton(
-                  asset: '../images/lynch.png',
+                  asset: 'assets/images/lynch.png',
                   label: 'Peter Lynch',
                   selected: _strategy == 'lynch',
                   disabled: _loading,
@@ -219,7 +219,7 @@ class _DashboardState extends State<Dashboard> {
               SizedBox(
                 width: 110,
                 child: InvButton(
-                  asset: '../images/soros.png',
+                  asset: 'assets/images/soros.png',
                   label: 'George Soros',
                   selected: _strategy == 'soros',
                   disabled: _loading,

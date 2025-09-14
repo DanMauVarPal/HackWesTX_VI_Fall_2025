@@ -5,7 +5,10 @@ class Books extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final books = _books;
+
     return Container(
+      width: double.infinity,
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
@@ -13,54 +16,113 @@ class Books extends StatelessWidget {
           colors: [Color(0xFF0B1220), Color(0xFF0B1220)],
         ),
       ),
-      padding: EdgeInsets.fromLTRB(20, 30, 20, 20),
-      child: Column(
+      child: ListView.separated(
+        padding: const EdgeInsets.fromLTRB(24, 32, 24, 40),
+        itemCount: books.length + 1,
+        separatorBuilder: (_, __) => const SizedBox(height: 12),
+        itemBuilder: (context, i) {
+          if (i == 0) {
+            return Center(
+              child: Text(
+                'Books Used for Referencing',
+                style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            );
+          }
+          final book = books[i - 1];
+          return Align(
+            alignment: Alignment.topCenter,
+            child: _BookCard(book: book),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class BookRef {
+  const BookRef({
+    required this.title,
+    required this.author,
+    required this.investorTag,
+    required this.coverAsset,
+  });
+
+  final String title;
+  final String author;
+  final String investorTag;
+  final String coverAsset;
+}
+
+final _books = <BookRef>[
+  const BookRef(
+    title: 'The Snowball and Financial Analysis',
+    author: 'Warren Buffett',
+    investorTag: 'Buffett',
+    coverAsset: 'assets/books/buffett.jpg',
+  ),
+  const BookRef(
+    title: 'One Up On Wall Street',
+    author: 'Peter Lynch',
+    investorTag: 'Lynch',
+    coverAsset: 'assets/books/lynch.jpg',
+  ),
+  const BookRef(
+    title: 'The Intelligent Investor',
+    author: 'Benjamin Graham',
+    investorTag: 'Graham',
+    coverAsset: 'assets/books/graham.jpg',
+  ),
+  const BookRef(
+    title: 'The Alchemy of Finance',
+    author: 'George Soros',
+    investorTag: 'Soros',
+    coverAsset: 'assets/books/soros.jpg',
+  ),
+  const BookRef(
+    title: 'Investing the Templeton Way',
+    author: 'John Templeton',
+    investorTag: 'Templeton',
+    coverAsset: 'assets/books/templeton.jpg',
+  ),
+  const BookRef(
+    title: 'Margin of Safety',
+    author: 'Seth Klarman',
+    investorTag: 'Klarman',
+    coverAsset: 'assets/books/klarman.jpg',
+  ),
+];
+
+class _BookCard extends StatelessWidget {
+  const _BookCard({required this.book});
+
+  final BookRef book;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = Theme.of(context).textTheme;
+
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxHeight: 400, maxWidth: 500),
+      child: Row(
         children: [
-          Text(
-            'Books Used for Referencing\n',
-            style: Theme.of(
-              context,
-            ).textTheme.headlineLarge?.copyWith(fontWeight: FontWeight.w800),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 300, maxWidth: 200),
+            child: AspectRatio(
+              aspectRatio: 3 / 4,
+              child: Image.asset(book.coverAsset),
+            ),
           ),
           Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 18),
               Text(
-                "0. Warren Buffet:\n\tSlowball and Financial Analysis\n",
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w800),
-              ),
-              Text(
-                "1. Peter Lynch:\n\tOne Up on Wall-street\n",
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w800),
-              ),
-              Text(
-                "2. Benjamin Graham:\n\tThe Intelligent Investor\n",
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w800),
-              ),
-              Text(
-                "3. George Soros:\n\tThe Alchemy of Finance\n",
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w800),
-              ),
-              Text(
-                "4. John Templeton:\n\tInvesting the Templeton Way\n",
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w800),
-              ),
-              Text(
-                "5. Seth Klarman:\n\tMargin of Safety\n",
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w800),
+                book.title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: t.titleMedium?.copyWith(fontWeight: FontWeight.w800),
               ),
             ],
           ),
