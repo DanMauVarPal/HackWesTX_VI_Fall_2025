@@ -31,11 +31,4 @@ class MyApp extends StatelessWidget {
   }
 }
 
-enum AppSection {
-  dashboard,
-  stockAnalysis,
-  newsFeed,
-  books,
-  valueInvesting,
-  realTimeAnalysis,
-}
+enum AppSection { dashboard, books }

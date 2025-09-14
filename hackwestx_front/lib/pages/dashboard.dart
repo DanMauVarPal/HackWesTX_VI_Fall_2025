@@ -15,18 +15,31 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
   String lastUpdated = DateFormat('MM/dd/y – HH:mm:ss').format(DateTime.now());
+  bool _loading = false;
 
-  Future<void> _runAIAnalysis() async {
-    await fetchAndShow(context, "analyze");
+  Future<void> _onInvestorPressed(String func) async {
     if (!mounted) return;
-    setState(() {
-      lastUpdated = DateFormat('yyyy-MM-dd – HH:mm:ss').format(DateTime.now());
-    });
+    setState(() => _loading = true);
+    try {
+      await fetchAndShow(context, func);
+
+      if (mounted) {
+        lastUpdated = DateFormat('MM/dd/y – HH:mm:ss').format(DateTime.now());
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final page = Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
@@ -37,21 +50,11 @@ class _DashboardState extends State<Dashboard> {
       child: ListView(
         padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
         children: [
-          Row(
-            children: [
-              Text(
-                'Value Investment Dashboard',
-                style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              const Spacer(),
-              FilledButton.icon(
-                onPressed: _runAIAnalysis,
-                icon: const Icon(Icons.bolt),
-                label: const Text('Run AI Analysis'),
-              ),
-            ],
+          Text(
+            'Value Investment Dashboard',
+            style: Theme.of(
+              context,
+            ).textTheme.headlineLarge?.copyWith(fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 18),
           Row(
@@ -62,7 +65,7 @@ class _DashboardState extends State<Dashboard> {
                 child: InvButton(
                   asset: '../images/buffett.png',
                   label: 'Warren Buffett',
-                  onTap: () => fetchAndShow(context, "buffet"),
+                  onTap: () => _onInvestorPressed("buffett"),
                 ),
               ),
               SizedBox(
@@ -70,7 +73,7 @@ class _DashboardState extends State<Dashboard> {
                 child: InvButton(
                   asset: '../images/graham.png',
                   label: 'Benjamin Graham',
-                  onTap: () => fetchAndShow(context, "graham"),
+                  onTap: () => _onInvestorPressed("graham"),
                 ),
               ),
               SizedBox(
@@ -78,7 +81,7 @@ class _DashboardState extends State<Dashboard> {
                 child: InvButton(
                   asset: '../images/klarman.png',
                   label: 'Seth Klarman',
-                  onTap: () => fetchAndShow(context, "templeton"),
+                  onTap: () => _onInvestorPressed("klarman"),
                 ),
               ),
               SizedBox(
@@ -86,7 +89,7 @@ class _DashboardState extends State<Dashboard> {
                 child: InvButton(
                   asset: '../images/templeton.png',
                   label: 'John Templeton',
-                  onTap: () => fetchAndShow(context, "klarman"),
+                  onTap: () => _onInvestorPressed("templeton"),
                 ),
               ),
               SizedBox(
@@ -94,7 +97,7 @@ class _DashboardState extends State<Dashboard> {
                 child: InvButton(
                   asset: '../images/lynch.png',
                   label: 'Peter Lynch',
-                  onTap: () => fetchAndShow(context, "lynch"),
+                  onTap: () => _onInvestorPressed("lynch"),
                 ),
               ),
               SizedBox(
@@ -102,7 +105,7 @@ class _DashboardState extends State<Dashboard> {
                 child: InvButton(
                   asset: '../images/soros.png',
                   label: 'George Soros',
-                  onTap: () => fetchAndShow(context, "soros"),
+                  onTap: () => _onInvestorPressed("soros"),
                 ),
               ),
             ],
@@ -151,7 +154,7 @@ class _DashboardState extends State<Dashboard> {
                 drawdownFromHigh: 11.223682127592216,
               ),
               RecommendationCard(
-                investor: 'Buffet',
+                investor: 'Buffett',
                 ticker: 'XOM',
                 name: 'Exxon Mobil Corporation',
                 sector: 'Graham',
@@ -169,7 +172,7 @@ class _DashboardState extends State<Dashboard> {
                 drawdownFromHigh: 11.223682127592216,
               ),
               RecommendationCard(
-                investor: 'Buffet',
+                investor: 'Buffett',
                 ticker: 'XOM',
                 name: 'Exxon Mobil Corporation',
                 sector: 'Templeton',
@@ -187,7 +190,7 @@ class _DashboardState extends State<Dashboard> {
                 drawdownFromHigh: 11.223682127592216,
               ),
               RecommendationCard(
-                investor: 'Buffet',
+                investor: 'Buffett',
                 ticker: 'XOM',
                 name: 'Exxon Mobil Corporation',
                 sector: 'Klarman',
@@ -205,7 +208,7 @@ class _DashboardState extends State<Dashboard> {
                 drawdownFromHigh: 11.223682127592216,
               ),
               RecommendationCard(
-                investor: 'Buffet',
+                investor: 'Buffett',
                 ticker: 'XOM',
                 name: 'Exxon Mobil Corporation',
                 sector: 'Lynch',
@@ -223,7 +226,7 @@ class _DashboardState extends State<Dashboard> {
                 drawdownFromHigh: 11.223682127592216,
               ),
               RecommendationCard(
-                investor: 'Buffet',
+                investor: 'Buffett',
                 ticker: 'XOM',
                 name: 'Exxon Mobil Corporation',
                 sector: 'Soros',
@@ -244,6 +247,44 @@ class _DashboardState extends State<Dashboard> {
           ),
         ],
       ),
+    );
+
+    return Stack(
+      children: [
+        page,
+        if (_loading)
+          Positioned.fill(
+            child: AbsorbPointer(
+              child: Container(
+                color: Colors.black.withOpacity(0.35),
+                child: Center(
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF101826),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: .1),
+                      ),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(strokeWidth: 2.6),
+                        ),
+                        SizedBox(width: 12),
+                        Text('Loading…'),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

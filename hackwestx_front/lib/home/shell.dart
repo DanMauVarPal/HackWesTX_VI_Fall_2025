@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:hackwestx_front/home/place_holder.dart';
 import 'package:hackwestx_front/home/side_menu.dart';
 import 'package:hackwestx_front/main.dart';
+import 'package:hackwestx_front/pages/books.dart';
 
 import '../pages/dashboard.dart';
 
@@ -66,16 +66,8 @@ class _ShellState extends State<Shell> {
     switch (current) {
       case AppSection.dashboard:
         return const Dashboard();
-      case AppSection.stockAnalysis:
-        return const PlaceholderView('Stock Analysis');
-      case AppSection.newsFeed:
-        return const PlaceholderView('News Feed');
       case AppSection.books:
-        return const PlaceholderView('Books');
-      case AppSection.valueInvesting:
-        return const PlaceholderView('Value Investing (Graham & Buffett)');
-      case AppSection.realTimeAnalysis:
-        return const PlaceholderView('Real-time Analysis (Live Market Data)');
+        return const Books();
     }
   }
 }

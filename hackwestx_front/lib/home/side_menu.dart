@@ -17,7 +17,7 @@ class SideMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bg = const Color(0xFF0E152A); // sidebar bg
+    final bg = const Color(0xFF0E152A);
     final border = Colors.white.withValues(alpha: .06);
 
     return Container(
@@ -52,7 +52,7 @@ class SideMenu extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'ValuePicker AI',
+                        'Finance CoPilot',
                         style: TextStyle(
                           fontWeight: FontWeight.w700,
                           fontSize: 16,
@@ -85,18 +85,6 @@ class SideMenu extends StatelessWidget {
                         onTap: () => onChange(AppSection.dashboard),
                       ),
                       NavItem(
-                        icon: Icons.show_chart,
-                        label: 'Stock Analysis',
-                        selected: current == AppSection.stockAnalysis,
-                        onTap: () => onChange(AppSection.stockAnalysis),
-                      ),
-                      NavItem(
-                        icon: Icons.article_outlined,
-                        label: 'News Feed',
-                        selected: current == AppSection.newsFeed,
-                        onTap: () => onChange(AppSection.newsFeed),
-                      ),
-                      NavItem(
                         icon: Icons.menu_book_outlined,
                         label: 'Books',
                         selected: current == AppSection.books,
@@ -117,38 +105,6 @@ class SideMenu extends StatelessWidget {
                 borderRadius: BorderRadius.circular(14),
                 color: Colors.white.withValues(alpha: .04),
                 border: Border.all(color: border),
-              ),
-              child: Row(
-                children: [
-                  const Icon(
-                    Icons.auto_awesome,
-                    size: 18,
-                    color: Colors.white70,
-                  ),
-                  const SizedBox(width: 8),
-                  const Text(
-                    'AI Assistant',
-                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
-                  ),
-                  const Spacer(),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF22D3EE).withValues(alpha: .15),
-                      borderRadius: BorderRadius.circular(999),
-                      border: Border.all(
-                        color: const Color(0xFF22D3EE).withValues(alpha: .6),
-                      ),
-                    ),
-                    child: const Text(
-                      'Analyzing 24/7',
-                      style: TextStyle(fontSize: 11, color: Color(0xFF67E8F9)),
-                    ),
-                  ),
-                ],
               ),
             ),
           ),

@@ -56,61 +56,61 @@ class RecommendationCard extends StatelessWidget {
     final text = Theme.of(context).textTheme;
 
     final tiles = <Widget>[
-      if (pe != null && !(investor == 'Klarman' || investor == 'Soros'))
+      if (pe != null && !(investor == 'klarman' || investor == 'soros'))
         Metrics(title: 'P/E Ratio', value: pe!.toStringAsFixed(2)),
 
       if (pb != null &&
-          !(investor == 'Buffett' ||
-              investor == 'Lynch' ||
-              investor == 'Soros'))
+          !(investor == 'buffett' ||
+              investor == 'lynch' ||
+              investor == 'soros'))
         Metrics(title: 'P/B Ratio', value: pb!.toStringAsFixed(2)),
 
       if (priceTo52wLow != null &&
-          !(investor == 'Buffett' ||
-              investor == 'Klarman' ||
-              investor == 'Lynch' ||
-              investor == 'Soros'))
+          !(investor == 'buffett' ||
+              investor == 'klarman' ||
+              investor == 'lynch' ||
+              investor == 'soros'))
         Metrics(
           title: 'Price to 52w Low',
           value: priceTo52wLow!.toStringAsFixed(2),
         ),
 
       if (dividendYield != null &&
-          !(investor == 'Klarman' ||
-              investor == 'Lynch' ||
-              investor == 'Soros'))
+          !(investor == 'klarman' ||
+              investor == 'lynch' ||
+              investor == 'soros'))
         Metrics(
           title: 'Dividend Yield %',
           value: dividendYield!.toStringAsFixed(2),
         ),
 
-      if (roe != null && !(investor == 'Klarman' || investor == 'Soros'))
+      if (roe != null && !(investor == 'klarman' || investor == 'soros'))
         Metrics(title: 'ROE%', value: roe!.toStringAsFixed(2)),
 
       if (debtToEquity != null &&
-          !(investor == 'Klarman' || investor == 'Soros'))
+          !(investor == 'klarman' || investor == 'soros'))
         Metrics(
           title: 'Debt to Equity',
           value: debtToEquity!.toStringAsFixed(2),
         ),
 
       if (currentRatio != null &&
-          !(investor == 'Buffett' ||
-              investor == 'Templeton' ||
-              investor == 'Lynch' ||
-              investor == 'Soros'))
+          !(investor == 'buffett' ||
+              investor == 'templeton' ||
+              investor == 'lynch' ||
+              investor == 'soros'))
         Metrics(
           title: 'Current Ratio',
           value: currentRatio!.toStringAsFixed(2),
         ),
 
-      if (investor == 'Templeton' && earningsGrowth != null)
+      if (investor == 'templeton' && earningsGrowth != null)
         Metrics(
           title: 'Earnings Growth',
           value: earningsGrowth!.toStringAsFixed(2),
         ),
 
-      if (investor == 'Soros' && drawdownFromHigh != null)
+      if (investor == 'soros' && drawdownFromHigh != null)
         Metrics(
           title: 'Drawdown From High',
           value: drawdownFromHigh!.toStringAsFixed(2),
