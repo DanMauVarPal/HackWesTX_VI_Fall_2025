@@ -60,7 +60,7 @@ class _DashboardState extends State<Dashboard> {
               SizedBox(
                 width: 110,
                 child: InvButton(
-                  asset: 'assets/icons/buy.png',
+                  asset: '../images/buffett.png',
                   label: 'Warren Buffett',
                   onTap: () => fetchAndShow(context, "buffet"),
                 ),
@@ -68,7 +68,7 @@ class _DashboardState extends State<Dashboard> {
               SizedBox(
                 width: 110,
                 child: InvButton(
-                  asset: 'assets/icons/sell.png',
+                  asset: '../images/graham.png',
                   label: 'Benjamin Graham',
                   onTap: () => fetchAndShow(context, "graham"),
                 ),
@@ -76,7 +76,7 @@ class _DashboardState extends State<Dashboard> {
               SizedBox(
                 width: 110,
                 child: InvButton(
-                  asset: 'assets/icons/hold.png',
+                  asset: '../images/klarman.png',
                   label: 'Seth Klarman',
                   onTap: () => fetchAndShow(context, "templeton"),
                 ),
@@ -84,7 +84,7 @@ class _DashboardState extends State<Dashboard> {
               SizedBox(
                 width: 110,
                 child: InvButton(
-                  asset: 'assets/icons/news.png',
+                  asset: '../images/templeton.png',
                   label: 'John Templeton',
                   onTap: () => fetchAndShow(context, "klarman"),
                 ),
@@ -92,7 +92,7 @@ class _DashboardState extends State<Dashboard> {
               SizedBox(
                 width: 110,
                 child: InvButton(
-                  asset: 'assets/icons/metrics.png',
+                  asset: '../images/lynch.png',
                   label: 'Peter Lynch',
                   onTap: () => fetchAndShow(context, "lynch"),
                 ),
@@ -100,8 +100,8 @@ class _DashboardState extends State<Dashboard> {
               SizedBox(
                 width: 110,
                 child: InvButton(
-                  asset: 'assets/icons/wallet.png',
-                  label: 'Jorge Soros',
+                  asset: '../images/soros.png',
+                  label: 'George Soros',
                   onTap: () => fetchAndShow(context, "soros"),
                 ),
               ),

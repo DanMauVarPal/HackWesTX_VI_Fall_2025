@@ -6,7 +6,7 @@ class InvButton extends StatelessWidget {
     required this.asset,
     required this.label,
     required this.onTap,
-    this.iconSize = 40,
+    this.iconSize = 70,
   });
 
   final String asset;
