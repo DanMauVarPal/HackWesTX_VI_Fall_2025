@@ -2,10 +2,27 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:hackwestx_front/pages/panel.dart';
+import 'package:hackwestx_front/pages/recommendation_card.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 
-class Dashboard extends StatelessWidget {
+class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
+
+  @override
+  State<Dashboard> createState() => _DashboardState();
+}
+
+class _DashboardState extends State<Dashboard> {
+  String lastUpdated = DateFormat('MM/dd/y – HH:mm:ss').format(DateTime.now());
+
+  Future<void> _runAIAnalysis() async {
+    await fetchAndShow(context, "analyze"); // your API call
+    if (!mounted) return;
+    setState(() {
+      lastUpdated = DateFormat('yyyy-MM-dd – HH:mm:ss').format(DateTime.now());
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +47,7 @@ class Dashboard extends StatelessWidget {
               ),
               const Spacer(),
               FilledButton.icon(
-                onPressed: () {},
+                onPressed: _runAIAnalysis, // ✅ updates when clicked
                 icon: const Icon(Icons.bolt),
                 label: const Text('Run AI Analysis'),
               ),
@@ -44,11 +61,20 @@ class Dashboard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          Panel(
-            child: Text(
-              'Latest AI Recommendations list/grid goes here…',
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
+          Row(
+            children: [
+              Text(
+                "Latest AI Recommended Stocks",
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                "Updated: $lastUpdated",
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
           ),
           const SizedBox(height: 16),
           GridView.count(
@@ -58,33 +84,113 @@ class Dashboard extends StatelessWidget {
             crossAxisSpacing: 10,
             mainAxisSpacing: 10,
             children: [
-              FilledButton.icon(
-                label: const Text("Test Button 0"),
-                onPressed: () => fetchAndShow(context, "test"),
+              RecommendationCard(
+                investor: 'Buffett',
+                ticker: 'XOM',
+                name: 'Exxon Mobil Corporation',
+                sector: 'Energy',
+                coreScore: 62.9,
+                marketCap: 478166122496.0,
+                summary: '',
+                pe: 15.931819,
+                pb: 1.820927,
+                priceTo52wLow: 1.1468302658486706,
+                dividendYield: 3.53,
+                roe: 11.831000399999999,
+                debtToEquity: 14.442,
+                currentRatio: 1.249,
+                earningsGrowth: -23.599999999999998,
+                drawdownFromHigh: 11.223682127592216,
               ),
-              FilledButton.icon(
-                onPressed: () {},
-                label: const Text("Test Button 1"),
+              RecommendationCard(
+                investor: 'Graham',
+                ticker: 'XOM',
+                name: 'Exxon Mobil Corporation',
+                sector: 'Energy',
+                coreScore: 62.9,
+                marketCap: 478166122496.0,
+                summary: '',
+                pe: 15.931819,
+                pb: 1.820927,
+                priceTo52wLow: 1.1468302658486706,
+                dividendYield: 3.53,
+                roe: 11.831000399999999,
+                debtToEquity: 14.442,
+                currentRatio: 1.249,
+                earningsGrowth: -23.599999999999998,
+                drawdownFromHigh: 11.223682127592216,
               ),
-              FilledButton.icon(
-                onPressed: () {},
-                label: const Text("Test Button 2"),
+              RecommendationCard(
+                investor: 'Templeton',
+                ticker: 'XOM',
+                name: 'Exxon Mobil Corporation',
+                sector: 'Energy',
+                coreScore: 62.9,
+                marketCap: 478166122496.0,
+                summary: '',
+                pe: 15.931819,
+                pb: 1.820927,
+                priceTo52wLow: 1.1468302658486706,
+                dividendYield: 3.53,
+                roe: 11.831000399999999,
+                debtToEquity: 14.442,
+                currentRatio: 1.249,
+                earningsGrowth: -23.599999999999998,
+                drawdownFromHigh: 11.223682127592216,
               ),
-              FilledButton.icon(
-                onPressed: () {},
-                label: const Text("Test Button 3"),
+              RecommendationCard(
+                investor: 'Klarman',
+                ticker: 'XOM',
+                name: 'Exxon Mobil Corporation',
+                sector: 'Energy',
+                coreScore: 62.9,
+                marketCap: 478166122496.0,
+                summary: '',
+                pe: 15.931819,
+                pb: 1.820927,
+                priceTo52wLow: 1.1468302658486706,
+                dividendYield: 3.53,
+                roe: 11.831000399999999,
+                debtToEquity: 14.442,
+                currentRatio: 1.249,
+                earningsGrowth: -23.599999999999998,
+                drawdownFromHigh: 11.223682127592216,
               ),
-              FilledButton.icon(
-                onPressed: () {},
-                label: const Text("Test Button 4"),
+              RecommendationCard(
+                investor: 'Lynch',
+                ticker: 'XOM',
+                name: 'Exxon Mobil Corporation',
+                sector: 'Energy',
+                coreScore: 62.9,
+                marketCap: 478166122496.0,
+                summary: '',
+                pe: 15.931819,
+                pb: 1.820927,
+                priceTo52wLow: 1.1468302658486706,
+                dividendYield: 3.53,
+                roe: 11.831000399999999,
+                debtToEquity: 14.442,
+                currentRatio: 1.249,
+                earningsGrowth: -23.599999999999998,
+                drawdownFromHigh: 11.223682127592216,
               ),
-              FilledButton.icon(
-                onPressed: () {},
-                label: const Text("Test Button 5"),
-              ),
-              FilledButton.icon(
-                onPressed: () {},
-                label: const Text("Test Button 6"),
+              RecommendationCard(
+                investor: 'Soros',
+                ticker: 'XOM',
+                name: 'Exxon Mobil Corporation',
+                sector: 'Energy',
+                coreScore: 62.9,
+                marketCap: 478166122496.0,
+                summary: '',
+                pe: 15.931819,
+                pb: 1.820927,
+                priceTo52wLow: 1.1468302658486706,
+                dividendYield: 3.53,
+                roe: 11.831000399999999,
+                debtToEquity: 14.442,
+                currentRatio: 1.249,
+                earningsGrowth: -23.599999999999998,
+                drawdownFromHigh: 11.223682127592216,
               ),
             ],
           ),

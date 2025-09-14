@@ -6,7 +6,7 @@ import 'package:hackwestx_front/main.dart';
 import '../pages/dashboard.dart';
 
 class Shell extends StatefulWidget {
-  const Shell();
+  const Shell({super.key});
 
   @override
   State<Shell> createState() => _ShellState();
@@ -30,7 +30,6 @@ class _ShellState extends State<Shell> {
                     current: current,
                     onChange: (s) => setState(() => current = s),
                   ),
-                  // Content
                   Expanded(child: _buildContent()),
                 ],
               ),
