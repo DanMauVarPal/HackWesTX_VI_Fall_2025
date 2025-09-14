@@ -1,4 +1,3 @@
-# klarman_screener.py
 import json
 import pandas as pd, numpy as np, yfinance as yf
 from common_screener import (
@@ -14,7 +13,7 @@ NET_CASH_TO_MKT_MIN = -10.0
 CURRENT_RATIO_MIN   = 1.5
 INTEREST_COVER_MIN  = 4.0
 
-# CoreScore
+# CoreScore weights
 CORE_WEIGHTS = {"FCFYield%":0.30,"EV/EBITDA":0.25,"P/B":0.15,"NetCashToMktCap%":0.15,"CurrentRatio":0.10,"InterestCoverage":0.05}
 DIRS = {"FCFYield%":True,"EV/EBITDA":False,"P/B":False,"NetCashToMktCap%":True,"CurrentRatio":True,"InterestCoverage":True}
 

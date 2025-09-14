@@ -1,4 +1,3 @@
-# buffett_screener.py
 import json
 import pandas as pd, numpy as np, yfinance as yf
 from common_screener import (
@@ -6,7 +5,6 @@ from common_screener import (
     ffloat, frac_to_pct, is_num
 )
 
-# Snowball/Buffett gates (objective proxies)
 PRICE_TO_EARNINGS_MAX = 25.0
 DIVIDEND_YIELD_MIN = 2.0
 DEBT_TO_EQUITY_MAX = 0.5
@@ -21,7 +19,6 @@ EXPECTED = ["Ticker","Name","Sector","MarketCap","P/E","Price","DividendYield%",
 NUMS     = ["MarketCap","P/E","Price","DividendYield%","ROE%","DebtToEquity"]
 
 def _get_live_price(tk, info):
-    # best-effort live price
     try:
         fi = getattr(tk, "fast_info", {}) or {}
         p = float(fi.get("last_price"))
@@ -48,10 +45,10 @@ def _fetch_one(t:str)->dict:
         price = _get_live_price(tk, info)
         mcap  = ffloat(info.get("marketCap"))
         pe    = ffloat(info.get("trailingPE"))
-        roe   = frac_to_pct(info.get("returnOnEquity"))  # fraction→%
+        roe   = frac_to_pct(info.get("returnOnEquity"))  
         d2e   = ffloat(info.get("debtToEquity"))
         div_y = info.get("dividendYield")
-        # normalize dividend yield
+        # normalizing dividend yield
         div_yld = np.nan
         try:
             v = float(div_y)

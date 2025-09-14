@@ -1,4 +1,3 @@
-# graham_screener.py
 import json
 import pandas as pd, numpy as np, yfinance as yf
 from common_screener import (
@@ -11,7 +10,7 @@ PE_MAX=15.0; PB_MAX=1.2; PRICE_TO_52W_LOW_MAX=1.20
 DEBT_TO_EQUITY_MAX=1.0; CURRENT_RATIO_MIN=1.5
 DIVIDEND_MIN_YIELD=2.0; ROE_MIN=5.0
 
-# CoreScore
+# CoreScore weights 
 CORE_WEIGHTS = {"P/E":0.25,"P/B":0.20,"PriceTo52wLow":0.15,"DividendYield%":0.15,"ROE%":0.10,"DebtToEquity":0.10,"CurrentRatio":0.05}
 DIRS = {"P/E":False,"P/B":False,"PriceTo52wLow":False,"DividendYield%":True,"ROE%":True,"DebtToEquity":False,"CurrentRatio":True}
 
