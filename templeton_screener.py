@@ -1,21 +1,30 @@
 # templeton_screener.py
-import time, math, json, random, sys
+import sys, os, time, math, json, random
 import pandas as pd, numpy as np, requests, yfinance as yf
 from concurrent.futures import ThreadPoolExecutor, as_completed
-import os, json, time
 
+# ================= Universe sources (HTTPS) =================
 SEC_URLS = [
     "https://www.sec.gov/files/company_tickers.json",
     "https://www.sec.gov/files/company_tickers_exchange.json",
 ]
 
+# Cache for the SEC ticker list
+SYMBOL_CACHE = "symbol_cache_us.json"   # saved in working dir
+CACHE_TTL_SECS = 24 * 3600              # reuse for 24h
 
+def _normalize_for_yahoo(sym: str) -> str:
+    """Convert raw exchange/SEC symbols to Yahoo format."""
+    s = (sym or "").strip().upper()
+    s = s.replace(".", "-").replace(" ", "")
+    if "^" in s or not s:
+        return ""
+    return s
 
 # ================= Config =================
-SLEEP_BETWEEN_CALLS = (0.02, 0.06)   # jitter between Yahoo calls (helps with rate limits)
-MAX_WORKERS = 12                     # tune based on your network
+SLEEP_BETWEEN_CALLS = (0.02, 0.06)   # jitter between Yahoo calls (rate-limit friendly)
+MAX_WORKERS = 12
 HTTP_HEADERS = {
-    # Realistic UA; include a contact per SEC guidance if possible
     "User-Agent": "HackWestX-StockCopilot/1.0 (+contact@example.com) Mozilla/5.0"
 }
 
@@ -60,13 +69,12 @@ try:
         raise_on_status=False,
     )
 except Exception:
-    # very old urllib3 compat
-    from urllib3.util.retry import Retry
+    from urllib3.util.retry import Retry  # compat
     RETRY = Retry(
         total=5,
         backoff_factor=0.4,
         status_forcelist=[429, 500, 502, 503, 504],
-        method_whitelist=frozenset(["GET"]),  # deprecated name
+        method_whitelist=frozenset(["GET"]),
         raise_on_status=False,
     )
 
@@ -75,72 +83,7 @@ SESSION.headers.update(HTTP_HEADERS)
 SESSION.mount("https://", HTTPAdapter(max_retries=RETRY))
 SESSION.mount("http://",  HTTPAdapter(max_retries=RETRY))
 
-# ================= Universe (Nasdaq HTTPS -> SEC HTTPS) =================
-def _fetch_nasdaq_https() -> set[str]:
-    """
-    Try official Nasdaq Trader HTTPS symbol directories.
-    Some networks block these; failures are logged but non-fatal.
-    """
-    urls = [
-        "https://ftp.nasdaqtrader.com/dynamic/SymDir/nasdaqtraded.txt",
-        "https://ftp.nasdaqtrader.com/dynamic/SymDir/otherlisted.txt",
-        "https://ftp.nasdaqtrader.com/dynamic/SymDir/nasdaqlisted.txt",
-    ]
-    syms = set()
-    for url in urls:
-        try:
-            r = SESSION.get(url, timeout=25)
-            r.raise_for_status()
-            lines = r.text.strip().splitlines()
-            if not lines:
-                print(f"[universe] {url} returned empty body")
-                continue
-            header = lines[0].split("|")
-            def idx(name, fallback=None): return header.index(name) if name in header else fallback
-            i_sym  = idx("Symbol", idx("ACT Symbol", 0))
-            i_etf  = idx("ETF", None)
-            i_test = idx("Test Issue", None)
-
-            for ln in lines[1:]:
-                parts = ln.split("|")
-                if i_sym is None or i_sym >= len(parts): continue
-                s = parts[i_sym].strip().upper()
-                if not s or any(x in s for x in [".","$","^"," "]): continue
-                if i_etf is not None and i_etf < len(parts) and parts[i_etf].strip().upper() == "Y": continue
-                if i_test is not None and i_test < len(parts) and parts[i_test].strip().upper() == "Y": continue
-                syms.add(s)
-        except Exception as e:
-            print(f"[universe] Nasdaq HTTPS failed: {url} -> {type(e).__name__}: {e}")
-    return syms
-
-def _fetch_sec_https() -> set[str]:
-    """
-    SEC JSON as a secondary source (also HTTPS, often more firewall-friendly).
-    """
-    urls = [
-        "https://www.sec.gov/files/company_tickers.json",
-        "https://www.sec.gov/files/company_tickers_exchange.json",
-    ]
-    syms = set()
-    for url in urls:
-        try:
-            r = SESSION.get(url, timeout=25)
-            r.raise_for_status()
-            data = r.json()
-            if isinstance(data, dict):
-                it = data.values()
-            elif isinstance(data, list):
-                it = data
-            else:
-                it = []
-            for row in it:
-                t = (row.get("ticker") or "").strip().upper()
-                if t and not any(x in t for x in [".","$","^"," "]):
-                    syms.add(t)
-        except Exception as e:
-            print(f"[universe] SEC HTTPS failed: {url} -> {type(e).__name__}: {e}")
-    return syms
-
+# ================= SEC universe with 24h cache =================
 def get_us_equity_universe(limit=100000) -> list[str]:
     # 1) use cache if fresh
     try:
@@ -169,6 +112,7 @@ def get_us_equity_universe(limit=100000) -> list[str]:
             print(f"[universe] SEC fetch failed: {url} -> {type(e).__name__}: {e}")
 
     out = sorted(syms)
+
     # 3) write/update cache
     try:
         with open(SYMBOL_CACHE, "w", encoding="utf-8") as f:
@@ -176,9 +120,7 @@ def get_us_equity_universe(limit=100000) -> list[str]:
     except Exception:
         pass
 
-    if limit and limit > 0:
-        out = out[:limit]
-    return out
+    return out[:limit] if limit else out
 
 # ================= Helpers =================
 def is_num(x):
