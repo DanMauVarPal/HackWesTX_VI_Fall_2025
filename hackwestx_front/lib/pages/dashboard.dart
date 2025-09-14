@@ -62,7 +62,7 @@ class _DashboardState extends State<Dashboard> {
                 child: InvButton(
                   asset: 'assets/icons/buy.png',
                   label: 'Warren Buffett',
-                  onTap: _noop,
+                  onTap: () => fetchAndShow(context, "buffet"),
                 ),
               ),
               SizedBox(
@@ -70,7 +70,7 @@ class _DashboardState extends State<Dashboard> {
                 child: InvButton(
                   asset: 'assets/icons/sell.png',
                   label: 'Benjamin Graham',
-                  onTap: _noop,
+                  onTap: () => fetchAndShow(context, "graham"),
                 ),
               ),
               SizedBox(
@@ -78,7 +78,7 @@ class _DashboardState extends State<Dashboard> {
                 child: InvButton(
                   asset: 'assets/icons/hold.png',
                   label: 'Seth Klarman',
-                  onTap: _noop,
+                  onTap: () => fetchAndShow(context, "templeton"),
                 ),
               ),
               SizedBox(
@@ -86,7 +86,7 @@ class _DashboardState extends State<Dashboard> {
                 child: InvButton(
                   asset: 'assets/icons/news.png',
                   label: 'John Templeton',
-                  onTap: _noop,
+                  onTap: () => fetchAndShow(context, "klarman"),
                 ),
               ),
               SizedBox(
@@ -94,7 +94,7 @@ class _DashboardState extends State<Dashboard> {
                 child: InvButton(
                   asset: 'assets/icons/metrics.png',
                   label: 'Peter Lynch',
-                  onTap: _noop,
+                  onTap: () => fetchAndShow(context, "lynch"),
                 ),
               ),
               SizedBox(
@@ -102,7 +102,7 @@ class _DashboardState extends State<Dashboard> {
                 child: InvButton(
                   asset: 'assets/icons/wallet.png',
                   label: 'Jorge Soros',
-                  onTap: _noop,
+                  onTap: () => fetchAndShow(context, "soros"),
                 ),
               ),
             ],
