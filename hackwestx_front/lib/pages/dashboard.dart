@@ -249,7 +249,7 @@ class _DashboardState extends State<Dashboard> {
 }
 
 Future<void> fetchAndShow(BuildContext context, String func) async {
-  final url = Uri.parse("http://10.0.2.2:8000/$func");
+  final url = Uri.parse("http://10.161.3.108:8000/$func");
   final response = await http.get(url);
 
   if (response.statusCode == 200) {
