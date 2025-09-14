@@ -1,23 +1,19 @@
-# common_screener.py
-# Shared utilities for all screeners:
-# - Robust SEC-based US ticker universe (HTTPS, cached 24h)
-# - Yahoo-friendly symbol normalization ('.' -> '-', trim spaces, drop '^')
-# - Filters out non-common securities (warrants/units/rights/preferreds)
-# - Threaded fetch helper + core score computation + output shaping
+# Shared functionality for all screeners:
+# - SEC-based US ticker universe 
+# - Yahoo-friendly symbol normalization ('.' -> '-'...)
+# - Filters out non-common securities that our investors would likely disregard (warrants/units/rights/preferreds)
+# - output formatting 
 
 import os, json, time, math, random
 import pandas as pd, numpy as np, requests
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-# ================= General config =================
-SLEEP_BETWEEN_CALLS = (0.02, 0.06)  # jitter to be gentle on Yahoo endpoints
+SLEEP_BETWEEN_CALLS = (0.02, 0.06)  
 MAX_WORKERS = 12
 HTTP_HEADERS = {
-    # Good citizen UA; include a contact per SEC guidance if you can
     "User-Agent": "HackWestX-StockCopilot/1.0 (+contact@example.com) Mozilla/5.0"
 }
 
-# ================= Robust requests Session =================
 from requests.adapters import HTTPAdapter
 try:
     from urllib3.util.retry import Retry
@@ -34,7 +30,7 @@ except Exception:  # very old urllib3 compatibility
         total=5,
         backoff_factor=0.4,
         status_forcelist=[429, 500, 502, 503, 504],
-        method_whitelist=frozenset(["GET"]),  # deprecated name
+        method_whitelist=frozenset(["GET"]),  
         raise_on_status=False,
     )
 
@@ -43,7 +39,6 @@ SESSION.headers.update(HTTP_HEADERS)
 SESSION.mount("https://", HTTPAdapter(max_retries=RETRY))
 SESSION.mount("http://",  HTTPAdapter(max_retries=RETRY))
 
-# ================= SEC universe (HTTPS) with cache =================
 SEC_URLS = [
     "https://www.sec.gov/files/company_tickers.json",
     "https://www.sec.gov/files/company_tickers_exchange.json",
@@ -60,12 +55,12 @@ def _normalize_for_yahoo(sym: str) -> str:
     """Normalize SEC/Nasdaq symbols into Yahoo-friendly format."""
     s = (sym or "").strip().upper()
     s = s.replace(".", "-")  # class shares: BRK.B -> BRK-B
-    s = s.replace(" ", "")   # drop spaces
-    if "^" in s or not s:    # Yahoo caret products / empty
+    s = s.replace(" ", "")   
+    if "^" in s or not s:    
         return ""
     return s
 
-# Yahoo rarely has fundamentals for these suffixes (warrants/units/rights)
+# Yahoo rarely has fundamentals for these suffixes so we exclude them (warrants/units/rights)
 EXCLUDE_SUFFIXES = {"W", "WS", "WT", "WTA", "WTS", "U", "UN", "RT", "R"}
 
 def _looks_like_common(sym: str) -> bool:
@@ -73,11 +68,11 @@ def _looks_like_common(sym: str) -> bool:
     s = _normalize_for_yahoo(sym)
     if not s:
         return False
-    tail = s.split("-")[-1]  # e.g., BRK-B -> "B", BAC-PRA -> "PRA"
-    # Exclude warrants/units/rights by explicit suffix list
+    tail = s.split("-")[-1]  # e.g., BRK-B -> "B"
+    # Exclude warrants/units/rights 
     if tail in EXCLUDE_SUFFIXES:
         return False
-    # Exclude most preferred shares (e.g., "-PRA", "-PRB", "-PRN", "-PA", "-PB")
+    # Exclude most preferred shares (e.g., "-PRA")
     if tail.startswith("PR") or (len(tail) <= 3 and tail.startswith("P")):
         return False
     return True
@@ -90,7 +85,6 @@ def get_us_equity_universe(limit: int = 100000) -> list[str]:
     - Optionally restricts to major exchanges (when provided)
     - Caches for 24h to reduce repeated pulls
     """
-    # 1) Serve fresh cache if available
     try:
         if os.path.exists(SYMBOL_CACHE) and (time.time() - os.path.getmtime(SYMBOL_CACHE) < CACHE_TTL_SECS):
             with open(SYMBOL_CACHE, "r", encoding="utf-8") as f:
@@ -101,7 +95,7 @@ def get_us_equity_universe(limit: int = 100000) -> list[str]:
     except Exception:
         pass
 
-    # 2) Pull from SEC (both endpoints)
+    # Pull from SEC (both endpoints)
     syms = set()
     for url in SEC_URLS:
         try:
@@ -124,7 +118,6 @@ def get_us_equity_universe(limit: int = 100000) -> list[str]:
 
     out = sorted(syms)
 
-    # 3) Persist cache (best effort)
     try:
         with open(SYMBOL_CACHE, "w", encoding="utf-8") as f:
             json.dump(out, f)
@@ -133,11 +126,10 @@ def get_us_equity_universe(limit: int = 100000) -> list[str]:
 
     return out[:limit] if limit else out
 
-# Back-compat alias so older screeners still calling get_nasdaq_universe keep working
+# so older screeners still calling get_nasdaq_universe keep working
 def get_nasdaq_universe(limit: int = 6000) -> list[str]:
     return get_us_equity_universe(limit=limit)
 
-# ================= Helpers used by screeners =================
 def is_num(x):
     try:
         return x is not None and not pd.isna(x) and np.isfinite(float(x))
@@ -243,7 +235,7 @@ def build_output(df: pd.DataFrame, CORE_WEIGHTS: dict, DIRS: dict, cols: list, t
         out.append(row)
     return out
 
-# Optional quick test: print a sample of the universe when running this file directly
+# quick test:
 if __name__ == "__main__":
     syms = get_us_equity_universe(limit=50)
     print(f"{len(syms)} symbols (sample): {syms[:20]}")
