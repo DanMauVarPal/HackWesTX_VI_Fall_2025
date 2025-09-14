@@ -1,14 +1,20 @@
 # templeton_screener.py
-import time, math, json, random
-import pandas as pd, numpy as np, requests, yfinance as yf
-from concurrent.futures import ThreadPoolExecutor, as_completed
+# Templeton-style screener wired to common_screener:
+# - Universe & helpers come from common_screener
+# - Only Templeton-specific metrics, checklist, and weights live here
 
-# ================= Config =================
-SLEEP_BETWEEN_CALLS = (0.02, 0.06)
-MAX_WORKERS = 12
-HTTP_HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123 Safari/537.36"}
+import sys, json
+import pandas as pd, numpy as np, yfinance as yf
 
-# Templeton gates (objective proxies)
+from common_screener import (
+    get_us_equity_universe,   # SEC HTTPS universe (filtered to common stocks)
+    fetch_many,               # threaded fetch wrapper
+    compute_core_score,       # percentile + weighted blend
+    build_output,             # final JSON for frontend
+    ffloat, frac_to_pct, normalize_div_yield, is_num
+)
+
+# ================= Templeton config =================
 PE_MAX = 12.0
 PB_MAX = 1.5
 PRICE_TO_52W_LOW_MAX = 1.30
@@ -17,7 +23,7 @@ CURRENT_RATIO_MIN = 1.5
 DIVIDEND_MIN_YIELD = 0.0
 EARNINGS_GROWTH_MIN = -5.0
 
-# CoreScore weights
+# CoreScore weights & directions
 CORE_WEIGHTS = {
     "P/E": 0.20,
     "P/B": 0.15,
@@ -27,99 +33,65 @@ CORE_WEIGHTS = {
     "DebtToEquity": 0.10,
     "EarningsGrowth%": 0.10
 }
-DIRS = {"P/E": False, "P/B": False, "PriceTo52wLow": False, "DividendYield%": True, "ROE%": True, "DebtToEquity": False, "EarningsGrowth%": True}
+DIRS = {
+    "P/E": False, "P/B": False, "PriceTo52wLow": False,
+    "DividendYield%": True, "ROE%": True, "DebtToEquity": False, "EarningsGrowth%": True
+}
 
-EXPECTED_COLS = [
+EXPECTED = [
     "Ticker","Name","Sector","MarketCap","P/E","P/B","Price","PriceTo52wLow",
     "DrawdownFromHigh%","DividendYield%","ROE%","DebtToEquity","CurrentRatio","EarningsGrowth%"
 ]
-
-# A guaranteed fallback (so you never get an empty list, even offline)
-FALLBACK_TICKERS = [
-    "AAPL","MSFT","NVDA","AMZN","META","GOOGL","GOOG","BRK-B","TSLA","JPM","V","MA","UNH","HD",
-    "XOM","CVX","KO","PEP","PG","WMT","COST","MCD","DIS","INTC","AMD","AVGO","NFLX","ORCL",
-    "PFE","JNJ","MRK","ABBV","TMO","NKE","IBM","QCOM","TXN","CSCO","ADBE","CRM","LIN","BAC",
-    "GS","MS","C","CAT","DE","GE","BA","LMT","RTX","T","VZ","UPS","LOW","SBUX","BKNG","DUK"
+NUMS = [
+    "MarketCap","P/E","P/B","Price","PriceTo52wLow","DrawdownFromHigh%","DividendYield%","ROE%",
+    "DebtToEquity","CurrentRatio","EarningsGrowth%"
 ]
 
-# ================= Universe =================
-def get_nasdaq_universe(limit=100000) -> list[str]:
-    urls = [
-        "https://ftp.nasdaqtrader.com/dynamic/SymDir/nasdaqtraded.txt",
-        "https://ftp.nasdaqtrader.com/dynamic/SymDir/otherlisted.txt",
-    ]
-    syms = set()
-    for url in urls:
-        try:
-            r = requests.get(url, timeout=25, headers=HTTP_HEADERS)
-            r.raise_for_status()
-            lines = r.text.strip().splitlines()
-            header = lines[0].split("|")
-            def idx(name, fallback=None): return header.index(name) if name in header else fallback
-            i_sym  = idx("Symbol", idx("ACT Symbol", 0))
-            i_etf  = idx("ETF", None)
-            i_test = idx("Test Issue", None)
-            for ln in lines[1:]:
-                parts = ln.split("|")
-                if len(parts) <= i_sym: continue
-                s = parts[i_sym].strip()
-                if not s or any(x in s for x in [".","$","^"," "]): continue
-                if i_etf is not None and i_etf < len(parts) and parts[i_etf].strip().upper() == "Y": continue
-                if i_test is not None and i_test < len(parts) and parts[i_test].strip().upper() == "Y": continue
-                syms.add(s)
-        except Exception as e:
-            # keep trying other URL(s)
-            pass
-    out = sorted(list(syms))[:limit]
-    if not out:  # hard fallback so we never return 0
-        out = FALLBACK_TICKERS[: min(limit, len(FALLBACK_TICKERS))]
-    return out
-
-# ================= Helpers =================
-def is_num(x):
-    try: return x is not None and not pd.isna(x) and np.isfinite(float(x))
-    except: return False
-
-def ffloat(x):
-    try:
-        if x is None or (isinstance(x, float) and math.isnan(x)): return np.nan
-        return float(x)
-    except: return np.nan
-
-def frac_to_pct(x):
-    if not is_num(x): return np.nan
-    v = float(x)
-    return v*100.0 if v <= 2.0 else v
-
-def normalize_div_yield(x):
-    if not is_num(x): return np.nan
-    v = float(x)
-    if 0 <= v <= 1.0: return v*100.0
-    if v > 50: return v/100.0
-    return v
-
-# ================= Yahoo fetch =================
+# ================= Local metric helpers (Templ.-specific) =================
 def _compute_pe(price, eps_ttm):
-    if is_num(price) and is_num(eps_ttm) and eps_ttm != 0:
-        return float(price) / float(eps_ttm)
-    return np.nan
+    return (float(price)/float(eps_ttm)) if (is_num(price) and is_num(eps_ttm) and eps_ttm != 0) else np.nan
 
 def _compute_pb(price, shares_out, equity_total):
     if is_num(price) and is_num(shares_out) and shares_out > 0 and is_num(equity_total) and equity_total > 0:
         bvps = float(equity_total) / float(shares_out)
-        if bvps > 0:
-            return float(price) / bvps
+        return (float(price)/bvps) if bvps > 0 else np.nan
     return np.nan
 
+def _get_live_price(tk, info):
+    # 1) fast_info
+    try:
+        fi = getattr(tk, "fast_info", {}) or {}
+        p = float(fi.get("last_price"))
+        if np.isfinite(p): return p
+    except Exception:
+        pass
+    # 2) info
+    try:
+        p = float(info.get("currentPrice"))
+        if np.isfinite(p): return p
+    except Exception:
+        pass
+    # 3) last intraday close
+    try:
+        h = tk.history(period="1d", interval="1m")
+        if not h.empty:
+            p = float(h["Close"].dropna().iloc[-1])
+            if np.isfinite(p): return p
+    except Exception:
+        pass
+    return np.nan
+
+# ================= Yahoo fetch for one ticker =================
 def _fetch_one(t: str) -> dict:
     try:
         tk = yf.Ticker(t)
-        # info + fast_info
-        try: info = tk.get_info()
-        except Exception: info = getattr(tk, "info", {}) or {}
+        try:
+            info = tk.get_info()
+        except Exception:
+            info = getattr(tk, "info", {}) or {}
         fi = getattr(tk, "fast_info", {}) or {}
 
-        price   = ffloat(info.get("currentPrice")) or ffloat(fi.get("last_price"))
+        price   = _get_live_price(tk, info)
         mcap    = ffloat(info.get("marketCap"))    or ffloat(fi.get("market_cap"))
         shares  = ffloat(info.get("sharesOutstanding")) or ffloat(fi.get("shares"))
         if not is_num(mcap) and is_num(price) and is_num(shares):
@@ -136,33 +108,38 @@ def _fetch_one(t: str) -> dict:
         div_yld = normalize_div_yield(info.get("dividendYield"))
         earn_g  = frac_to_pct(info.get("earningsGrowth"))
 
-        # fill missing
-        if not is_num(pe): pe = _compute_pe(price, eps_ttm)
+        if not is_num(pe):
+            pe = _compute_pe(price, eps_ttm)
+
         if not is_num(div_yld):
+            # Prefer API call; fallback to attribute
             try:
-                divs = tk.get_dividends(period="1y")
+                divs = tk.get_dividends()
             except Exception:
                 divs = getattr(tk, "dividends", None)
             if divs is not None and len(divs) > 0 and is_num(price):
                 ttm_div = float(divs.tail(4).sum())
-                if ttm_div > 0: div_yld = (ttm_div / float(price)) * 100.0
+                if ttm_div > 0:
+                    div_yld = (ttm_div / float(price)) * 100.0
+
         if not is_num(pb):
             try:
                 bs = tk.get_balance_sheet()
                 equity = None
-                for k in ["StockholdersEquity","TotalStockholderEquity","Total Equity Gross Minority Interest","TotalEquityGrossMinorityInterest"]:
+                for k in ["StockholdersEquity","TotalStockholderEquity",
+                          "Total Equity Gross Minority Interest","TotalEquityGrossMinorityInterest"]:
                     if k in bs.index:
                         equity = ffloat(bs.loc[k].iloc[0]); break
                 pb = _compute_pb(price, shares, equity)
             except Exception:
                 pass
 
-        p_to_low = (price / wk_low) if (is_num(price) and is_num(wk_low) and wk_low > 0) else np.nan
+        p_to_low   = (price / wk_low) if (is_num(price) and is_num(wk_low) and wk_low > 0) else np.nan
         dd_from_hi = ((wk_high - price) / wk_high * 100.0) if (is_num(price) and is_num(wk_high) and wk_high > 0) else np.nan
 
         return {
             "Ticker": t,
-            "Name": info.get("shortName") or info.get("longName") or t,
+            "Name":   info.get("shortName") or info.get("longName") or t,
             "Sector": info.get("sector") or "",
             "MarketCap": mcap,
             "P/E": pe,
@@ -179,42 +156,7 @@ def _fetch_one(t: str) -> dict:
     except Exception:
         return {"Ticker": t}
 
-def fetch_metrics_yf(tickers: list[str]) -> pd.DataFrame:
-    rows = []
-    with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
-        futs = {ex.submit(_fetch_one, t): t for t in tickers}
-        for fut in as_completed(futs):
-            rows.append(fut.result())
-            time.sleep(random.uniform(*SLEEP_BETWEEN_CALLS))
-    df = pd.DataFrame(rows)
-
-    for c in EXPECTED_COLS:
-        if c not in df.columns:
-            df[c] = np.nan
-
-    num_cols = ["MarketCap","P/E","P/B","Price","PriceTo52wLow","DrawdownFromHigh%","DividendYield%","ROE%","DebtToEquity","CurrentRatio","EarningsGrowth%"]
-    for c in num_cols:
-        df[c] = pd.to_numeric(df[c], errors="coerce")
-
-    return df
-
-# ================= Scoring =================
-def percentile(series: pd.Series, higher_is_better: bool) -> pd.Series:
-    r = series.rank(pct=True, method="average")
-    return r*100.0 if higher_is_better else (1.0 - r)*100.0
-
-def compute_core_score(df: pd.DataFrame) -> pd.DataFrame:
-    core = pd.Series(0.0, index=df.index)
-    wsum = pd.Series(0.0, index=df.index)
-    for col, w in CORE_WEIGHTS.items():
-        sc = percentile(df[col], DIRS[col])
-        df[f"Score_{col}"] = sc
-        m = sc.notna()
-        core[m] += sc[m]*w
-        wsum[m] += w
-    df["CoreScore"] = (core / wsum.replace(0, np.nan)).fillna(0).round(1)
-    return df
-
+# ================= Checklist =================
 def templeton_checklist(df: pd.DataFrame) -> pd.DataFrame:
     checks = {
         "PE_low":        (df["P/E"] <= PE_MAX),
@@ -233,23 +175,18 @@ def templeton_checklist(df: pd.DataFrame) -> pd.DataFrame:
 
 # ================= Public entrypoint =================
 def screen_templeton(top_n=15, limit=6000, order="core", include_metric_details=True):
-    """Return top 15 by CoreScore (default) or Gate→Checklist→Core ordering."""
-    tickers = get_nasdaq_universe(limit)
+    tickers = get_us_equity_universe(limit)
     print(f"Universe size: {len(tickers)}")
+    if not tickers:
+        print("Universe empty (SEC not reachable).")
+        return []
 
-    df = fetch_metrics_yf(tickers)
-    df["MarketCap_num"] = pd.to_numeric(df["MarketCap"], errors="coerce")
-    df = df[df["MarketCap_num"] > 0].drop(columns=["MarketCap_num"])
-    print(f"Have MarketCap>0 for: {len(df)} tickers")
-
-    if len(df) == 0:
-        # final safety net: use fallback tickers with Yahoo metrics
-        df = fetch_metrics_yf(FALLBACK_TICKERS)
-        df["MarketCap_num"] = pd.to_numeric(df["MarketCap"], errors="coerce")
-        df = df[df["MarketCap_num"] > 0].drop(columns=["MarketCap_num"])
+    df = fetch_many(tickers, _fetch_one, EXPECTED, NUMS)
+    # basic sanity filter
+    df = df[df["MarketCap"].fillna(0) > 0]
 
     df = templeton_checklist(df)
-    df = compute_core_score(df)
+    df = compute_core_score(df, CORE_WEIGHTS, DIRS)
 
     if order == "gate":
         df = df.sort_values(["TempletonGate","ChecklistScore","CoreScore"], ascending=[False,False,False])
@@ -258,31 +195,13 @@ def screen_templeton(top_n=15, limit=6000, order="core", include_metric_details=
 
     cols = [
         "Ticker","Name","Sector","CoreScore","ChecklistScore","TempletonGate",
-        "MarketCap","P/E","P/B","PriceTo52wLow","DividendYield%","ROE%",
+        "MarketCap","Price","P/E","P/B","PriceTo52wLow","DividendYield%","ROE%",
         "DebtToEquity","CurrentRatio","EarningsGrowth%","DrawdownFromHigh%"
     ]
-    df_out = df[cols].head(int(top_n)).copy()
-
-    # attach metric breakdown
-    out = []
-    for _, r in df_out.iterrows():
-        row = {c: ("" if pd.isna(r[c]) else (float(r[c]) if c not in ["Ticker","Name","Sector","TempletonGate"] else r[c])) for c in cols}
-        if include_metric_details:
-            metrics = []
-            total = 0.0
-            for m, w in CORE_WEIGHTS.items():
-                pct = None if pd.isna(r.get(f"Score_{m}")) else round(float(r.get(f"Score_{m}")), 1)
-                val = None if pd.isna(r.get(m)) else float(r.get(m))
-                contrib = None if pct is None else round(pct * w, 2)
-                total += (contrib or 0)
-                metrics.append({
-                    "metric": m, "value": val, "percentile_score": pct,
-                    "weight": w, "direction": "higher" if DIRS[m] else "lower",
-                    "weighted_contribution": contrib
-                })
-            row["metrics"] = metrics
-        out.append(row)
-    return out
+    return build_output(df, CORE_WEIGHTS, DIRS, cols, top_n, include_metric_details)
 
 if __name__ == "__main__":
-    print(json.dumps(screen_templeton(top_n=15, limit=6000, order="core", include_metric_details=True), indent=2))
+    # CLI: python templeton_screener.py 10 800
+    top_n = int(sys.argv[1]) if len(sys.argv) > 1 else 15
+    limit = int(sys.argv[2]) if len(sys.argv) > 2 else 6000
+    print(json.dumps(screen_templeton(top_n=top_n, limit=limit, order="core", include_metric_details=True), indent=2))
