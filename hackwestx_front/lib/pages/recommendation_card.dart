@@ -14,6 +14,7 @@ class RecommendationCard extends StatelessWidget {
     required this.sector,
     required this.coreScore,
     required this.marketCap,
+    required this.price,
     required this.summary,
 
     this.pe,
@@ -34,6 +35,7 @@ class RecommendationCard extends StatelessWidget {
   final String sector;
   final double coreScore;
   final double marketCap;
+  final double price;
   final double? pe;
   final double? pb;
   final double? priceTo52wLow;
@@ -164,7 +166,7 @@ class RecommendationCard extends StatelessWidget {
 
             Column(
               children: [
-                PriceColumn(label: 'Price', price: marketCap, highlight: false),
+                PriceColumn(label: 'Price', price: price, highlight: false),
                 const SizedBox(height: 10),
                 PriceColumn(
                   label: 'Market Cap',

@@ -66,7 +66,7 @@ class _DashboardState extends State<Dashboard> {
     setState(() {
       _loading = true;
       _error = null;
-      _strategy = strategy;
+      // _strategy = strategy;
     });
 
     final uri = Uri.parse('$baseUrl/$strategy?limit=200&top_n=20');
@@ -129,6 +129,7 @@ class _DashboardState extends State<Dashboard> {
         sector: sectorText,
         coreScore: _toDouble(row['CoreScore']),
         marketCap: _toDouble(row['MarketCap']),
+        price: _toDouble(row['Price']),
         summary: '',
         // You can assemble a blurb here if desired from metrics[]
         pe: _toDouble(row['P/E']),
