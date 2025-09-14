@@ -17,7 +17,7 @@ class Books extends StatelessWidget {
       child: Column(
         children: [
           Text(
-            'Books Used for Referencing',
+            'Books Used for Referencing\n',
             style: Theme.of(
               context,
             ).textTheme.headlineLarge?.copyWith(fontWeight: FontWeight.w800),
@@ -27,40 +27,40 @@ class Books extends StatelessWidget {
             children: [
               const SizedBox(height: 18),
               Text(
-                "0. Warren Buffet:\n\tSlowball and Financial Analysis",
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
+                "0. Warren Buffet:\n\tSlowball and Financial Analysis\n",
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w800),
               ),
               Text(
-                "1. Peter Lynch:\n\tOne Up on Wall-street",
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
+                "1. Peter Lynch:\n\tOne Up on Wall-street\n",
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w800),
               ),
               Text(
-                "2. Benjamin Graham:\n\tThe Intelligent Investor",
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
+                "2. Benjamin Graham:\n\tThe Intelligent Investor\n",
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w800),
               ),
               Text(
-                "3. George Soros:\n\tThe Alchemy of Finance",
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
+                "3. George Soros:\n\tThe Alchemy of Finance\n",
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w800),
               ),
               Text(
-                "4. John Templeton:\n\tInvesting the Templeton Way",
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
+                "4. John Templeton:\n\tInvesting the Templeton Way\n",
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w800),
               ),
               Text(
-                "5. Seth Klarman:\n\tMargin of Safety",
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
+                "5. Seth Klarman:\n\tMargin of Safety\n",
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w800),
               ),
             ],
           ),

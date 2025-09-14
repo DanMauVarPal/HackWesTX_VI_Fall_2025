@@ -7,6 +7,7 @@ import 'package:hackwestx_front/pages/widgets/titleBox.dart';
 class RecommendationCard extends StatelessWidget {
   const RecommendationCard({
     super.key,
+    required this.strategy,
     required this.investor,
     required this.ticker,
     required this.name,
@@ -26,6 +27,7 @@ class RecommendationCard extends StatelessWidget {
     this.drawdownFromHigh,
   });
 
+  final String strategy;
   final String investor;
   final String ticker;
   final String name;
@@ -56,61 +58,61 @@ class RecommendationCard extends StatelessWidget {
     final text = Theme.of(context).textTheme;
 
     final tiles = <Widget>[
-      if (pe != null && !(investor == 'klarman' || investor == 'soros'))
+      if (pe != null && !(strategy == 'klarman' || strategy == 'soros'))
         Metrics(title: 'P/E Ratio', value: pe!.toStringAsFixed(2)),
 
       if (pb != null &&
-          !(investor == 'buffett' ||
-              investor == 'lynch' ||
-              investor == 'soros'))
+          !(strategy == 'buffett' ||
+              strategy == 'lynch' ||
+              strategy == 'soros'))
         Metrics(title: 'P/B Ratio', value: pb!.toStringAsFixed(2)),
 
       if (priceTo52wLow != null &&
-          !(investor == 'buffett' ||
-              investor == 'klarman' ||
-              investor == 'lynch' ||
-              investor == 'soros'))
+          !(strategy == 'buffett' ||
+              strategy == 'klarman' ||
+              strategy == 'lynch' ||
+              strategy == 'soros'))
         Metrics(
           title: 'Price to 52w Low',
           value: priceTo52wLow!.toStringAsFixed(2),
         ),
 
       if (dividendYield != null &&
-          !(investor == 'klarman' ||
-              investor == 'lynch' ||
-              investor == 'soros'))
+          !(strategy == 'klarman' ||
+              strategy == 'lynch' ||
+              strategy == 'soros'))
         Metrics(
           title: 'Dividend Yield %',
           value: dividendYield!.toStringAsFixed(2),
         ),
 
-      if (roe != null && !(investor == 'klarman' || investor == 'soros'))
+      if (roe != null && !(strategy == 'klarman' || strategy == 'soros'))
         Metrics(title: 'ROE%', value: roe!.toStringAsFixed(2)),
 
       if (debtToEquity != null &&
-          !(investor == 'klarman' || investor == 'soros'))
+          !(strategy == 'klarman' || strategy == 'soros'))
         Metrics(
           title: 'Debt to Equity',
           value: debtToEquity!.toStringAsFixed(2),
         ),
 
       if (currentRatio != null &&
-          !(investor == 'buffett' ||
-              investor == 'templeton' ||
-              investor == 'lynch' ||
-              investor == 'soros'))
+          !(strategy == 'buffett' ||
+              strategy == 'templeton' ||
+              strategy == 'lynch' ||
+              strategy == 'soros'))
         Metrics(
           title: 'Current Ratio',
           value: currentRatio!.toStringAsFixed(2),
         ),
 
-      if (investor == 'templeton' && earningsGrowth != null)
+      if (strategy == 'templeton' && earningsGrowth != null)
         Metrics(
           title: 'Earnings Growth',
           value: earningsGrowth!.toStringAsFixed(2),
         ),
 
-      if (investor == 'soros' && drawdownFromHigh != null)
+      if (strategy == 'soros' && drawdownFromHigh != null)
         Metrics(
           title: 'Drawdown From High',
           value: drawdownFromHigh!.toStringAsFixed(2),
